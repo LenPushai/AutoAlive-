@@ -1,4 +1,4 @@
-﻿"use client";
+"use client";
 
 import { useState, useEffect } from "react";
 import Image from "next/image";
@@ -7,14 +7,14 @@ import { createClient } from "@/lib/supabase/client";
 
 const REVIEWS = [
   { initials: "PM", name: "Peter Mee", text: "Paul has given me excellent service from the beginning to the end. Good after sales service as well. Highly recommend him." },
-  { initials: "GR", name: "Graham Ruiters", text: "We travelled overnight from Kokstad in KZN. Our salesman Paul was kind enough to pick us up at Park Station. The vehicle was exactly as advertised — no surprises at all." },
+  { initials: "GR", name: "Graham Ruiters", text: "We travelled overnight from Kokstad in KZN. Our salesman Paul was kind enough to pick us up at Park Station. The vehicle was exactly as advertised ? no surprises at all." },
   { initials: "MN", name: "Milano Naidoo", text: "Two weeks later the car had a mechanical breakdown. One phone call to Paul and they PAID for the full mechanical fix. Who does that these days?!" },
 ];
 
 const WHY_US = [
   { icon: "\ud83d\udee1", title: "Quality Guaranteed", desc: "Every vehicle undergoes a comprehensive multi-point inspection before it hits our floor. No surprises, no hidden issues." },
   { icon: "\ud83d\udcb0", title: "Transparent Pricing", desc: "What you see is what you pay. No hidden fees, no last-minute additions. Straightforward deals you can trust." },
-  { icon: "\ud83e\udd1d", title: "Personal Service", desc: "From airport pickups to after-hours viewings — Paul and the team go above and beyond for every customer." },
+  { icon: "\ud83e\udd1d", title: "Personal Service", desc: "From airport pickups to after-hours viewings ? Paul and the team go above and beyond for every customer." },
   { icon: "\ud83d\udccb", title: "Finance Assistance", desc: "We work with all major banks to find you the best rate. Bad credit? We'll still try our best to get you approved." },
 ];
 
@@ -111,21 +111,21 @@ export default function HomePage() {
           <div className="hero-text">
             <div className="hero-badge">
               <div className="hero-badge-dot" />
-              <span>Now Open — Vanderbijlpark</span>
+              <span>Now Open ? Vanderbijlpark</span>
             </div>
             <h1 className="hero-title">Find Your<br /><em>Perfect</em> Ride</h1>
             <p className="hero-subtitle">
               Premium pre-owned vehicles backed by 15 years of trusted service.
-              Quality cars, bakkies, and motorcycles — all under one roof in the heart of the Vaal.
+              Quality cars, bakkies, and motorcycles ? all under one roof in the heart of the Vaal.
             </p>
             <div className="hero-actions">
-              <a href="#inventory" className="btn-primary">Browse Inventory →</a>
+              <a href="#inventory" className="btn-primary">Browse Inventory ?</a>
               <a href="#finance" className="btn-secondary">Calculate Finance</a>
             </div>
             <div className="hero-stats">
               <div><div className="hero-stat-number">15+</div><div className="hero-stat-label">Years Experience</div></div>
               <div><div className="hero-stat-number">32</div><div className="hero-stat-label">Google Reviews</div></div>
-              <div><div className="hero-stat-number">4.8★</div><div className="hero-stat-label">Average Rating</div></div>
+              <div><div className="hero-stat-number">4.8?</div><div className="hero-stat-label">Average Rating</div></div>
             </div>
           </div>
           <div className="hero-search">
@@ -156,7 +156,7 @@ export default function HomePage() {
                   <select><option>No Max</option><option>R 300,000</option><option>R 500,000</option><option>R 700,000</option></select>
                 </div>
               </div>
-              <button className="search-btn">Search {vehicles.length} Vehicles →</button>
+              <button className="search-btn">Search {vehicles.length} Vehicles ?</button>
             </div>
           </div>
         </div>
@@ -169,7 +169,7 @@ export default function HomePage() {
             <div className="section-overline">Our Selection</div>
             <h2 className="section-title">Featured Vehicles</h2>
           </div>
-          <a href="#" className="section-link">View All Stock →</a>
+          <a href="/inventory" className="section-link">View All Stock ?</a>
         </div>
         <div className="filter-tabs">
           {["All", "Cars", "Bakkies", "Motorcycles", "Under R200K"].map((f) => (
@@ -183,7 +183,7 @@ export default function HomePage() {
             <div style={{ gridColumn: "1/-1", textAlign: "center", padding: "3rem", color: "var(--muted)" }}>No vehicles found in this category.</div>
           ) : (
             filtered.map((v) => (
-              <div key={v.id} className="vehicle-card">
+              <Link href={`/inventory/${v.id}`} key={v.id} className="vehicle-card" style={{ textDecoration: "none", color: "inherit" }}>
                 <div className="vehicle-img">
                   {v.thumbnail ? (
                     <Image src={v.thumbnail} alt={`${v.year} ${v.make} ${v.model}`} fill style={{ objectFit: "cover" }} sizes="(max-width: 600px) 100vw, (max-width: 900px) 50vw, 33vw" />
@@ -191,22 +191,22 @@ export default function HomePage() {
                     <div className="vehicle-img-placeholder">{getBodyEmoji(v.body_type)}</div>
                   )}
                   {v.is_featured && <div className="vehicle-badge">Featured</div>}
-                  <div className="vehicle-photos-count">📷 {v.images?.length || 1}</div>
+                  <div className="vehicle-photos-count">?? {v.images?.length || 1}</div>
                 </div>
                 <div className="vehicle-info">
                   <div className="vehicle-year">{v.year}</div>
                   <div className="vehicle-name">{v.make} {v.model} {v.variant || ""}</div>
                   <div className="vehicle-specs">
-                    <span className="vehicle-spec">⏱ {Number(v.mileage).toLocaleString()} km</span>
-                    <span className="vehicle-spec">⚙ {v.transmission === "automatic" ? "Automatic" : "Manual"}</span>
-                    <span className="vehicle-spec">⛽ {v.fuel_type.charAt(0).toUpperCase() + v.fuel_type.slice(1)}</span>
+                    <span className="vehicle-spec">? {Number(v.mileage).toLocaleString()} km</span>
+                    <span className="vehicle-spec">? {v.transmission === "automatic" ? "Automatic" : "Manual"}</span>
+                    <span className="vehicle-spec">? {v.fuel_type.charAt(0).toUpperCase() + v.fuel_type.slice(1)}</span>
                   </div>
                   <div className="vehicle-footer">
                     <div className="vehicle-price">{formatZAR(v.price)}<span>or {formatZAR(calcMonthly(v.price))}/pm</span></div>
                     <button className="vehicle-enquire">Enquire</button>
                   </div>
                 </div>
-              </div>
+              </Link>
             ))
           )}
         </div>
@@ -221,10 +221,10 @@ export default function HomePage() {
             <h2 className="section-title">Calculate Your<br />Monthly Payment</h2>
             <p className="finance-desc">Know exactly what you&apos;ll pay before you visit. Our instant finance calculator gives you real estimates based on current interest rates, so you can shop with confidence.</p>
             <div className="finance-features">
-              <div className="finance-feature"><div className="finance-feature-icon">✓</div><span>Instant estimates — no personal info required</span></div>
-              <div className="finance-feature"><div className="finance-feature-icon">✓</div><span>Based on current prime lending rates</span></div>
-              <div className="finance-feature"><div className="finance-feature-icon">✓</div><span>Includes balloon payment options</span></div>
-              <div className="finance-feature"><div className="finance-feature-icon">✓</div><span>Apply for pre-approval via WhatsApp</span></div>
+              <div className="finance-feature"><div className="finance-feature-icon">?</div><span>Instant estimates ? no personal info required</span></div>
+              <div className="finance-feature"><div className="finance-feature-icon">?</div><span>Based on current prime lending rates</span></div>
+              <div className="finance-feature"><div className="finance-feature-icon">?</div><span>Includes balloon payment options</span></div>
+              <div className="finance-feature"><div className="finance-feature-icon">?</div><span>Apply for pre-approval via WhatsApp</span></div>
             </div>
           </div>
           <div className="calc-card">
@@ -257,8 +257,8 @@ export default function HomePage() {
           <h2 className="section-title">What Our Customers Say</h2>
         </div>
         <div className="google-rating">
-          <span className="google-stars">★★★★★</span>
-          <span className="google-text"><strong>4.8 out of 5</strong> — 32 Google Reviews</span>
+          <span className="google-stars">?????</span>
+          <span className="google-text"><strong>4.8 out of 5</strong> ? 32 Google Reviews</span>
         </div>
         <div className="reviews-grid">
           {REVIEWS.map((r, i) => (
@@ -267,7 +267,7 @@ export default function HomePage() {
               <p className="review-text">{r.text}</p>
               <div className="review-author">
                 <div className="review-avatar">{r.initials}</div>
-                <div><div className="review-name">{r.name}</div><div className="review-stars">★★★★★</div></div>
+                <div><div className="review-name">{r.name}</div><div className="review-stars">?????</div></div>
               </div>
             </div>
           ))}
@@ -304,8 +304,8 @@ export default function HomePage() {
           <h2 className="section-title">Your Next Vehicle<br />Is Waiting</h2>
           <p className="cta-desc">Whether you know exactly what you want or need help deciding, our team is ready to assist. Reach out on WhatsApp for the fastest response.</p>
           <div className="cta-buttons">
-            <a href="https://wa.me/27000000000" className="whatsapp-btn">💬 WhatsApp Us Now</a>
-            <a href="tel:0161234567" className="btn-secondary">📞 Call Us: 016 123 4567</a>
+            <a href="https://wa.me/27000000000" className="whatsapp-btn">?? WhatsApp Us Now</a>
+            <a href="tel:0161234567" className="btn-secondary">?? Call Us: 016 123 4567</a>
           </div>
         </div>
       </section>
@@ -316,11 +316,11 @@ export default function HomePage() {
           <div>
             <Image src="/images/logo/auto-alive-logo.jpg" alt="Auto Alive" width={140} height={52} style={{ objectFit: "contain" }} />
             <p className="footer-desc">Vanderbijlpark&apos;s premier destination for quality pre-owned vehicles since 2010. Trusted by hundreds of happy customers across South Africa.</p>
-            <div className="footer-social"><a href="#">f</a><a href="#">in</a><a href="#">✉</a></div>
+            <div className="footer-social"><a href="#">f</a><a href="#">in</a><a href="#">?</a></div>
           </div>
           <div>
             <h4>Quick Links</h4>
-            <ul><li><a href="#inventory">All Vehicles</a></li><li><a href="#">Cars</a></li><li><a href="#">Bakkies</a></li><li><a href="#">Motorcycles</a></li><li><a href="#finance">Finance</a></li></ul>
+            <ul><li><a href="/inventory">All Vehicles</a></li><li><a href="#">Cars</a></li><li><a href="#">Bakkies</a></li><li><a href="#">Motorcycles</a></li><li><a href="#finance">Finance</a></li></ul>
           </div>
           <div>
             <h4>Company</h4>
@@ -328,16 +328,17 @@ export default function HomePage() {
           </div>
           <div>
             <h4>Visit Us</h4>
-            <ul><li><a href="#">17 Vaal Drive</a></li><li><a href="#">Sylviaville</a></li><li><a href="#">Vanderbijlpark, 1911</a></li><li><a href="#" style={{ color: "var(--gold)" }}>Get Directions →</a></li></ul>
+            <ul><li><a href="#">17 Vaal Drive</a></li><li><a href="#">Sylviaville</a></li><li><a href="#">Vanderbijlpark, 1911</a></li><li><a href="#" style={{ color: "var(--gold)" }}>Get Directions ?</a></li></ul>
           </div>
         </div>
         <div className="footer-bottom">
-          <span>© 2026 Auto Alive. All rights reserved.</span>
+          <span>? 2026 Auto Alive. All rights reserved.</span>
           <span>Powered by{" "}<a href="https://pushai.co.za" target="_blank" rel="noopener noreferrer">PUSH AI Foundation</a></span>
         </div>
       </footer>
 
-      <a href="https://wa.me/27000000000" className="whatsapp-float" target="_blank" rel="noopener noreferrer">💬</a>
+      <a href="https://wa.me/27000000000" className="whatsapp-float" target="_blank" rel="noopener noreferrer">??</a>
     </>
   );
 }
+
