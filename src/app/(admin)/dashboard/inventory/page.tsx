@@ -28,7 +28,7 @@ export default function InventoryPage() {
     if (!confirm('Delete ' + make + ' ' + model + '? This cannot be undone.')) return
     setDeleting(id)
     const sb = createClient()
-    await sb.from('vehicles').delete().eq('id', id)
+    await (sb.from('vehicles') as any).delete().eq('id', id)
     await load()
     setDeleting(null)
   }
@@ -36,7 +36,7 @@ export default function InventoryPage() {
   async function toggleStatus(id: string, current: string) {
     const next = current === 'available' ? 'sold' : 'available'
     const sb = createClient()
-    await sb.from('vehicles').update({ status: next }).eq('id', id)
+    await (sb.from('vehicles') as any).update({ status: next }).eq('id', id)
     await load()
   }
 

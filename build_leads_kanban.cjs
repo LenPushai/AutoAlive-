@@ -1,4 +1,6 @@
-'use client'
+const fs = require('fs');
+
+fs.writeFileSync('src/app/(admin)/dashboard/leads/page.tsx', `'use client'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 
@@ -33,7 +35,7 @@ export default function LeadsPage() {
   async function moveLead(leadId: string, newStatus: string) {
     setUpdating(leadId)
     const sb = createClient()
-    await (sb.from('leads') as any).update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', leadId)
+    await sb.from('leads').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', leadId)
     await load()
     if (selected?.id === leadId) setSelected((s: any) => ({ ...s, status: newStatus }))
     setUpdating(null)
@@ -42,7 +44,7 @@ export default function LeadsPage() {
   async function deleteLead(leadId: string) {
     if (!confirm('Delete this lead? This cannot be undone.')) return
     const sb = createClient()
-    await (sb.from('leads') as any).delete().eq('id', leadId)
+    await sb.from('leads').delete().eq('id', leadId)
     setSelected(null)
     await load()
   }
@@ -222,7 +224,7 @@ export default function LeadsPage() {
                 style={{ flex: 1, background: '#0f1f3d', color: 'white', padding: '10px', borderRadius: '8px', textAlign: 'center', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
                 📞 Call
               </a>
-              <a href={'https://wa.me/27' + selected.phone.replace(/^0/, '').replace(/s/g, '')}
+              <a href={'https://wa.me/27' + selected.phone.replace(/^0/, '').replace(/\s/g, '')}
                 target="_blank" rel="noopener noreferrer"
                 style={{ flex: 1, background: '#16a34a', color: 'white', padding: '10px', borderRadius: '8px', textAlign: 'center', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
                 💬 WhatsApp
@@ -238,3 +240,7 @@ export default function LeadsPage() {
     </div>
   )
 }
+`);
+
+console.log('✅ Leads Kanban CRM built!');
+console.log('Features: Kanban + Table view toggle, 6 pipeline stages, lead detail modal, quick move buttons, Call + WhatsApp CTAs, delete');

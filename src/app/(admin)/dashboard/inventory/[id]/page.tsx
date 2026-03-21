@@ -5,7 +5,7 @@ import { useRouter, useParams } from 'next/navigation'
 
 export default function EditVehiclePage() {
   const router = useRouter()
-  const { id } = useParams()
+  const params = useParams(); const id = params.id as string
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
   const [form, setForm] = useState<any>(null)
@@ -26,7 +26,7 @@ export default function EditVehiclePage() {
     e.preventDefault()
     setSaving(true)
     const sb = createClient()
-    const { error } = await sb.from('vehicles').update({
+    const { error } = await (sb.from('vehicles') as any).update({
       make: form.make, model: form.model, variant: form.variant,
       year: Number(form.year), price: Number(form.price), mileage: Number(form.mileage),
       fuel_type: form.fuel_type, transmission: form.transmission,
