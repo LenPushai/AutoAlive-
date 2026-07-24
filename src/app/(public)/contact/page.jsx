@@ -38,7 +38,10 @@ export default function ContactPage() {
 
     // supabase-js resolves with { error } rather than throwing, so the response
     // must be inspected explicitly — a bare await silently discards failures.
-    var result = await sb.from("leads").insert(payload).select("id").single();
+    // No .select(): anon has no SELECT on leads (US-AA-034), and requesting a
+    // representation back would need it and fail 42501. We don't need the row —
+    // return=minimal is enough; success is result.error === null.
+    var result = await sb.from("leads").insert(payload);
 
     if (result.error) {
       // No customer PII in logs — identifiers and error metadata only.

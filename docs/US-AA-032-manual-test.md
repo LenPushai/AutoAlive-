@@ -131,3 +131,28 @@ afterwards (verified count back to 30):
 | `npx tsc --noEmit` (strict) | exit 0 |
 | `npm run build` | exit 0, 22 routes |
 | `npx eslint` on touched files | no new problems (all remaining are pre-existing `<a>`-nav and `@ts-nocheck` findings) |
+
+## US-AA-032 amendment — interaction with US-AA-034 (leads RLS lockdown)
+
+US-AA-034 removed anon SELECT on `leads` to close a PII exposure. The two public
+insert paths originally chained `.select("id").single()`, which makes supabase-js
+append `return=representation` to the `Prefer` header — and returning the inserted
+row requires the SELECT right anon no longer has. Result: every public submission
+failed with **HTTP 401 `42501`** (RLS violation) even though the INSERT policies
+were intact.
+
+Fix (app-side, no RLS change): drop `.select("id").single()` from both public
+paths. Bare `insert()` sends `Prefer: return=minimal` (confirmed in
+postgrest-js 2.98.0), so no SELECT is needed. The error branch is unchanged —
+success is `result.error === null`; we never used the returned row.
+
+**Joint closure probe (US-AA-032 + US-AA-034), run against live:**
+
+| Probe (anon key) | Expected |
+|---|---|
+| `SELECT` on `leads` | **`[]` / `Content-Range: */0`** — no PII readable |
+| `INSERT` with `Prefer: return=minimal` | **HTTP 201** — public capture works |
+| `INSERT` with `return=representation` (i.e. `.select()`) | **HTTP 401 `42501`** — expected; representation needs SELECT |
+
+Both of the first two must hold together: anon can write a website lead but read
+nothing back. Delete the probe row (service role) and confirm count returns to 30.
