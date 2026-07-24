@@ -1,5 +1,4 @@
-// @ts-nocheck
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { enquirySchema } from '@/lib/validators'
 import { resend, EMAIL_FROM } from '@/lib/email/client'
@@ -19,7 +18,10 @@ export async function POST(request: NextRequest) {
   const supabase = await createServerSupabaseClient()
   const { data: enquiry } = parsed
 
-  // Create lead in CRM
+  // Create lead in CRM.
+  // Cast at the insert boundary only: the placeholder Database type
+  // (src/types/database.ts) resolves inserts to `never`. Real generated types
+  // remove this cast (US-AA-037). The rest of the file is fully type-checked.
   const { error } = await (supabase.from('leads') as any).insert({
     first_name: enquiry.first_name,
     last_name: enquiry.last_name,

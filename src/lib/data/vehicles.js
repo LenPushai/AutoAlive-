@@ -1,6 +1,5 @@
 import { createAdminClient } from '@/lib/supabase/admin'
-
-const DEALER_ID = process.env.NEXT_PUBLIC_DEALER_ID || '00000000-0000-0000-0000-000000000001'
+import { DEALER_ID } from '@/config/dealer'
 
 /**
  * Fetch all available vehicles (for public pages)

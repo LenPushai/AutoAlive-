@@ -2,8 +2,7 @@
 import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
-
-const DEALER_ID = '00000000-0000-0000-0000-000000000001'
+import { DEALER_ID } from '@/config/dealer'
 
 export default function NewVehiclePage() {
   const router = useRouter()

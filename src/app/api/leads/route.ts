@@ -1,5 +1,4 @@
-// @ts-nocheck
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { leadSchema } from '@/lib/validators'
 import { DEALER_ID } from '@/config/dealer'
@@ -8,7 +7,7 @@ import { DEALER_ID } from '@/config/dealer'
 export async function GET() {
   const supabase = await createServerSupabaseClient()
   const { data, error } = await supabase
-    (supabase.from('leads') as any)
+    .from('leads')
     .select('*, vehicles(make, model, year)')
     .order('created_at', { ascending: false })
 
@@ -26,8 +25,10 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  const { data, error } = await supabase
-    .from('leads')
+  // Cast at the insert boundary only: the placeholder Database type
+  // (src/types/database.ts) resolves inserts to `never`. Real generated types
+  // remove this cast (US-AA-037). The rest of the file is fully type-checked.
+  const { data, error } = await (supabase.from('leads') as any)
     .insert({ ...parsed.data, dealer_id: DEALER_ID })
     .select()
     .single()

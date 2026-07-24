@@ -1,7 +1,7 @@
-// @ts-nocheck
-﻿import { NextRequest, NextResponse } from 'next/server'
+import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { vehicleSchema } from '@/lib/validators'
+import { DEALER_ID } from '@/config/dealer'
 
 // GET /api/vehicles — list vehicles (with filters)
 export async function GET(request: NextRequest) {
@@ -9,6 +9,7 @@ export async function GET(request: NextRequest) {
   const { searchParams } = request.nextUrl
 
   // TODO: Apply filters from searchParams
+  void searchParams
   const { data, error } = await supabase
     .from('vehicles')
     .select('*')
@@ -28,10 +29,12 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  // TODO: Get dealer_id from auth session
-  const { data, error } = await supabase
-    .from('vehicles')
-    .insert({ ...parsed.data, dealer_id: '' }) // TODO: real dealer_id
+  // TODO: Get dealer_id from auth session; DEALER_ID is the single-dealer default.
+  // Cast at the insert boundary only: the placeholder Database type
+  // (src/types/database.ts) resolves inserts to `never`. Real generated types
+  // remove this cast (US-AA-037). The rest of the file is fully type-checked.
+  const { data, error } = await (supabase.from('vehicles') as any)
+    .insert({ ...parsed.data, dealer_id: DEALER_ID })
     .select()
     .single()
 
