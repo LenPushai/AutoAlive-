@@ -5,6 +5,7 @@ import { enquirySchema } from '@/lib/validators'
 import { resend, EMAIL_FROM } from '@/lib/email/client'
 import { newEnquiryEmail, enquiryConfirmationEmail } from '@/lib/email/templates'
 import { vehicleTitle } from '@/lib/utils'
+import { DEALER_ID } from '@/config/dealer'
 
 // POST /api/contact — public enquiry form submission
 export async function POST(request: NextRequest) {
@@ -28,7 +29,7 @@ export async function POST(request: NextRequest) {
     source: 'website',
     status: 'new',
     notes: enquiry.message ?? null,
-    dealer_id: '', // TODO: real dealer_id
+    dealer_id: DEALER_ID,
   })
 
   if (error) return NextResponse.json({ error: error.message }, { status: 500 })

@@ -3,11 +3,13 @@
 import { useState } from "react";
 import Link from "next/link";
 import { createClient } from "@/lib/supabase/client";
+import { DEALER_ID } from "@/config/dealer";
 
 export default function ContactPage() {
   var [form, setForm] = useState({ name: "", phone: "", email: "", msg: "" });
   var [sent, setSent] = useState(false);
   var [sending, setSending] = useState(false);
+  var [failed, setFailed] = useState(false);
 
   function updateForm(key, val) {
     var u = Object.assign({}, form);
@@ -18,23 +20,42 @@ export default function ContactPage() {
   async function handleSubmit(e) {
     e.preventDefault();
     setSending(true);
-    try {
-      var sb = createClient();
-      await sb.from("leads").insert({
-        customer_name: form.name,
-        customer_phone: form.phone,
-        customer_email: form.email || null,
-        notes: form.msg || "General enquiry from contact page",
-        source: "website",
-        status: "new",
+    setFailed(false);
+
+    var sb = createClient();
+    var fullName = (form.name || "").trim();
+    var payload = {
+      dealer_id: DEALER_ID,
+      first_name: fullName.split(" ")[0],
+      // last_name is NOT NULL: a single-word name must yield "" and never null.
+      last_name: fullName.split(" ").slice(1).join(" "),
+      phone: form.phone,
+      email: form.email || null,
+      notes: form.msg || "General enquiry from contact page",
+      source: "website",
+      status: "new",
+    };
+
+    // supabase-js resolves with { error } rather than throwing, so the response
+    // must be inspected explicitly — a bare await silently discards failures.
+    var result = await sb.from("leads").insert(payload).select("id").single();
+
+    if (result.error) {
+      // No customer PII in logs — identifiers and error metadata only.
+      console.error("[contact] lead insert failed", {
+        code: result.error.code,
+        message: result.error.message,
+        details: result.error.details,
+        hint: result.error.hint,
       });
-      setSent(true);
-    } catch (er) {
-      console.error(er);
-      alert("Something went wrong. Please try WhatsApp or phone instead.");
-    } finally {
+      setFailed(true);
       setSending(false);
+      return;
     }
+
+    // Persist-first: only confirm to the buyer once the row genuinely exists.
+    setSent(true);
+    setSending(false);
   }
 
   return (
@@ -211,13 +232,23 @@ export default function ContactPage() {
                           style={Object.assign({}, S.fInput, { resize: "vertical" })}
                         />
                       </div>
+                      {failed && (
+                        <div style={S.formError} role="alert">
+                          <strong style={{ display: "block", marginBottom: "0.3rem" }}>
+                            {"\u26a0\ufe0f"} We could not save your message.
+                          </strong>
+                          Nothing was sent, so please don&apos;t assume we have it. Tap
+                          &ldquo;Try Again&rdquo; below, or reach us on WhatsApp or by phone
+                          and we will help you right away.
+                        </div>
+                      )}
                       <button
                         type="submit"
                         className="btn-primary"
                         disabled={sending}
                         style={{ width: "100%", padding: "0.9rem", fontSize: "0.95rem" }}
                       >
-                        {sending ? "Sending..." : "Send Message \u2192"}
+                        {sending ? "Sending..." : failed ? "Try Again \u2192" : "Send Message \u2192"}
                       </button>
                     </form>
                     <div style={S.formDivider}>
@@ -310,6 +341,7 @@ var S = {
   ff: { marginBottom: "0.8rem" },
   fLabel: { display: "block", fontSize: "0.72rem", fontWeight: 600, color: "var(--mid-text)", marginBottom: 4, textTransform: "uppercase", letterSpacing: "0.03em" },
   fInput: { width: "100%", padding: "0.7rem 0.9rem", borderRadius: 8, border: "1px solid #e2e8f0", fontFamily: "var(--font-body)", fontSize: "0.88rem", outline: "none", background: "var(--cream)", transition: "border-color 0.2s" },
+  formError: { background: "#fff5f5", border: "1px solid #fed7d7", borderRadius: 8, padding: "0.8rem 0.9rem", marginBottom: "0.8rem", fontSize: "0.82rem", lineHeight: 1.5, color: "#9b2c2c" },
 
   formDivider: { position: "relative", textAlign: "center", margin: "1.3rem 0", borderTop: "1px solid #edf2f7" },
   formDividerText: { position: "relative", top: "-0.6rem", background: "#fff", padding: "0 0.8rem", fontSize: "0.72rem", color: "var(--muted)", textTransform: "uppercase", letterSpacing: "0.05em" },

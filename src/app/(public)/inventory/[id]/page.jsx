@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { DEALER_ID } from "@/config/dealer";
 
 /* ── helpers ── */
 function formatZAR(n) {
@@ -31,6 +32,8 @@ export default function VehicleDetailPage() {
   var [showForm, setShowForm] = useState(false);
   var [form, setForm] = useState({ name: "", phone: "", email: "", msg: "" });
   var [sent, setSent] = useState(false);
+  var [sending, setSending] = useState(false);
+  var [failed, setFailed] = useState(false);
   var [dep, setDep] = useState(0);
   var [term, setTerm] = useState(72);
 
@@ -92,32 +95,47 @@ export default function VehicleDetailPage() {
   /* ── enquiry submit ── */
   async function handleSubmit(e) {
     e.preventDefault();
+    setSending(true);
+    setFailed(false);
+
     const sb = createClient();
+    const fullName = (form.name || '').trim();
     const payload = {
-      dealer_id: v.dealer_id,
+      // dealer_id comes from the vehicle row here — more precise than config
+      // when a vehicle is in context. See src/config/dealer.ts.
+      dealer_id: v.dealer_id || DEALER_ID,
       vehicle_id: v.id,
-      first_name: (form.name || '').split(' ')[0],
-      last_name: (form.name || '').split(' ').slice(1).join(' ') || null,
+      first_name: fullName.split(' ')[0],
+      // last_name is NOT NULL: a single-word name must yield "" and never null.
+      last_name: fullName.split(' ').slice(1).join(' '),
       phone: form.phone,
       email: form.email || null,
       notes: form.msg || null,
       source: "website",
       status: "new",
     };
-    console.log('=== LEAD INSERT PAYLOAD ===', payload);
-    const { data, error } = await sb
-      .from('leads')
-      .insert(payload)
-      .select()
-      .single();
-    console.log('=== FULL RESPONSE ===', { data, error });
-    if (error) {
-      console.error('SUPABASE INSERT ERROR:', { code: error.code, message: error.message, details: error.details, hint: error.hint });
-      alert('Error ' + error.code + ': ' + error.message);
-    } else {
-      console.log('Inserted successfully:', data);
-      setSent(true);
+
+    // supabase-js resolves with { error } rather than throwing, so the response
+    // must be inspected explicitly — a bare await silently discards failures.
+    const result = await sb.from('leads').insert(payload).select('id').single();
+
+    if (result.error) {
+      // No customer PII in logs — identifiers and error metadata only.
+      console.error('[vehicle-enquiry] lead insert failed', {
+        vehicle_id: v.id,
+        code: result.error.code,
+        message: result.error.message,
+        details: result.error.details,
+        hint: result.error.hint,
+      });
+      setFailed(true);
+      setSending(false);
+      return;
     }
+
+    // Persist-first: only confirm to the buyer once the row genuinely exists.
+    setSent(true);
+    setSending(false);
   }
 
   function updateForm(key, val) {
@@ -392,7 +410,19 @@ export default function VehicleDetailPage() {
                       <label style={S.fLabel}>Message</label>
                       <textarea rows={3} value={form.msg} onChange={function (e) { updateForm("msg", e.target.value); }} placeholder="Any questions..." style={Object.assign({}, S.fInput, { resize: "vertical" })} />
                     </div>
-                    <button type="submit" className="btn-primary" style={{ width: "100%" }}>Send Enquiry</button>
+                    {failed && (
+                      <div style={S.formError} role="alert">
+                        <strong style={{ display: "block", marginBottom: "0.3rem" }}>
+                          {"⚠️"} We could not save your enquiry.
+                        </strong>
+                        Nothing was sent, so please don&apos;t assume we have it. Tap
+                        &ldquo;Try Again&rdquo; below, or WhatsApp us about this vehicle
+                        and we will help you right away.
+                      </div>
+                    )}
+                    <button type="submit" className="btn-primary" disabled={sending} style={{ width: "100%" }}>
+                      {sending ? "Sending..." : failed ? "Try Again" : "Send Enquiry"}
+                    </button>
                   </form>
                 )}
               </div>
@@ -784,6 +814,16 @@ var S = {
     fontSize: "0.85rem",
     outline: "none",
     background: "#fff",
+  },
+  formError: {
+    background: "#fff5f5",
+    border: "1px solid #fed7d7",
+    borderRadius: 8,
+    padding: "0.75rem 0.85rem",
+    marginBottom: "0.7rem",
+    fontSize: "0.8rem",
+    lineHeight: 1.5,
+    color: "#9b2c2c",
   },
 
   /* finance */

@@ -2,6 +2,7 @@
 ﻿import { NextRequest, NextResponse } from 'next/server'
 import { createServerSupabaseClient } from '@/lib/supabase/server'
 import { leadSchema } from '@/lib/validators'
+import { DEALER_ID } from '@/config/dealer'
 
 // GET /api/leads
 export async function GET() {
@@ -27,7 +28,7 @@ export async function POST(request: NextRequest) {
 
   const { data, error } = await supabase
     .from('leads')
-    .insert({ ...parsed.data, dealer_id: '' }) // TODO: real dealer_id
+    .insert({ ...parsed.data, dealer_id: DEALER_ID })
     .select()
     .single()
 
