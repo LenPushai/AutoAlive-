@@ -6,7 +6,6 @@ const STATUS_COLORS: Record<string, string> = {
   available: '#16a34a',
   sold: '#dc2626',
   reserved: '#d97706',
-  pending: '#6366f1',
 }
 
 export default function InventoryPage() {
@@ -28,7 +27,8 @@ export default function InventoryPage() {
     if (!confirm('Delete ' + make + ' ' + model + '? This cannot be undone.')) return
     setDeleting(id)
     const sb = createClient()
-    await sb.from('vehicles').delete().eq('id', id)
+    const { error } = await sb.from('vehicles').delete().eq('id', id)
+    if (error) { alert('Could not delete vehicle: ' + error.message); setDeleting(null); return }
     await load()
     setDeleting(null)
   }
@@ -36,7 +36,8 @@ export default function InventoryPage() {
   async function toggleStatus(id: string, current: string) {
     const next = current === 'available' ? 'sold' : 'available'
     const sb = createClient()
-    await sb.from('vehicles').update({ status: next }).eq('id', id)
+    const { error } = await sb.from('vehicles').update({ status: next }).eq('id', id)
+    if (error) { alert('Could not update status: ' + error.message); return }
     await load()
   }
 

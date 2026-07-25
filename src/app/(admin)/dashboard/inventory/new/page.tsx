@@ -3,6 +3,7 @@ import { useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 import { DEALER_ID } from '@/config/dealer'
+import { VEHICLE_STATUSES } from '@/config/constants'
 
 export default function NewVehiclePage() {
   const router = useRouter()
@@ -89,7 +90,7 @@ export default function NewVehiclePage() {
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
             <div><label style={lbl}>Status</label>
               <select style={inp} value={form.status} onChange={e => set('status', e.target.value)}>
-                {['available','sold','reserved','pending'].map(o => <option key={o}>{o}</option>)}
+                {VEHICLE_STATUSES.map(o => <option key={o}>{o}</option>)}
               </select>
             </div>
             <div style={{ display: 'flex', alignItems: 'center', gap: '10px', paddingTop: '20px' }}>

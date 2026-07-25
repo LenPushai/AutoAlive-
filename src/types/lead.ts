@@ -1,5 +1,5 @@
-﻿export type LeadSource = 'website' | 'whatsapp' | 'autotrader' | 'facebook' | 'walkin' | 'phone' | 'referral'
-export type LeadStatus = 'new' | 'contacted' | 'qualified' | 'negotiating' | 'won' | 'lost'
+﻿export type LeadSource = 'website' | 'autotrader' | 'carscoza' | 'facebook' | 'tiktok' | 'instagram' | 'walkin' | 'googleads' | 'other'
+export type LeadStatus = 'new' | 'contacted' | 'test_drive' | 'negotiating' | 'won' | 'lost'
 
 export interface Lead {
   id: string

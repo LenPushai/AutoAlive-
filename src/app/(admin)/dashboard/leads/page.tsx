@@ -33,7 +33,8 @@ export default function LeadsPage() {
   async function moveLead(leadId: string, newStatus: string) {
     setUpdating(leadId)
     const sb = createClient()
-    await sb.from('leads').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', leadId)
+    const { error } = await sb.from('leads').update({ status: newStatus, updated_at: new Date().toISOString() }).eq('id', leadId)
+    if (error) { alert('Could not move lead: ' + error.message); setUpdating(null); return }
     await load()
     if (selected?.id === leadId) setSelected((s: any) => ({ ...s, status: newStatus }))
     setUpdating(null)
@@ -42,7 +43,8 @@ export default function LeadsPage() {
   async function deleteLead(leadId: string) {
     if (!confirm('Delete this lead? This cannot be undone.')) return
     const sb = createClient()
-    await sb.from('leads').delete().eq('id', leadId)
+    const { error } = await sb.from('leads').delete().eq('id', leadId)
+    if (error) { alert('Could not delete lead: ' + error.message); return }
     setSelected(null)
     await load()
   }

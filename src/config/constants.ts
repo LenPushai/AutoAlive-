@@ -15,12 +15,26 @@ export const BODY_TYPES = [
   'Single Cab', 'Coupe', 'Crossover', 'MPV', 'Van',
 ] as const
 
+// Aligned to live leads_source_check (schema-of-record, US-AA-048)
 export const LEAD_SOURCES = [
-  'website', 'whatsapp', 'autotrader', 'facebook', 'walkin', 'phone', 'referral',
+  'website', 'autotrader', 'carscoza', 'facebook', 'tiktok', 'instagram', 'walkin', 'googleads', 'other',
 ] as const
 
+export const LEAD_SOURCE_LABELS: Record<(typeof LEAD_SOURCES)[number], string> = {
+  website: 'Website',
+  autotrader: 'AutoTrader',
+  carscoza: 'Cars.co.za',
+  facebook: 'Facebook',
+  tiktok: 'TikTok',
+  instagram: 'Instagram',
+  walkin: 'Walk-in',
+  googleads: 'Google Ads',
+  other: 'Other',
+}
+
+// Aligned to live leads_status_check (schema-of-record, US-AA-037/046)
 export const LEAD_STATUSES = [
-  'new', 'contacted', 'qualified', 'negotiating', 'won', 'lost',
+  'new', 'contacted', 'test_drive', 'negotiating', 'won', 'lost',
 ] as const
 
 export const VEHICLE_STATUSES = ['available', 'reserved', 'sold'] as const
