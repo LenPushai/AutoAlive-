@@ -224,7 +224,7 @@ export default function LeadsPage() {
                 style={{ flex: 1, background: '#0f1f3d', color: 'white', padding: '10px', borderRadius: '8px', textAlign: 'center', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
                 📞 Call
               </a>
-              <a href={'https://wa.me/27' + selected.phone.replace(/^0/, '').replace(/s/g, '')}
+              <a href={'https://wa.me/27' + selected.phone.replace(/^0/, '').replace(/\s/g, '')}
                 target="_blank" rel="noopener noreferrer"
                 style={{ flex: 1, background: '#16a34a', color: 'white', padding: '10px', borderRadius: '8px', textAlign: 'center', textDecoration: 'none', fontSize: '13px', fontWeight: '700' }}>
                 💬 WhatsApp
