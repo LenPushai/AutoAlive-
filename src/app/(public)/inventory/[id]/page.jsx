@@ -190,7 +190,6 @@ export default function VehicleDetailPage() {
     { l: "Transmission", v: v.transmission === "automatic" ? "Automatic" : "Manual" },
     { l: "Fuel Type", v: (v.fuel_type || "").charAt(0).toUpperCase() + (v.fuel_type || "").slice(1) },
     { l: "Colour", v: v.colour ? v.colour.charAt(0).toUpperCase() + v.colour.slice(1) : "\u2014" },
-    { l: "Condition", v: v.condition ? v.condition.charAt(0).toUpperCase() + v.condition.slice(1) : "\u2014" },
   ];
 
   /* ════════════════════════════════════ */

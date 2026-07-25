@@ -1,15 +1,19 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { LEAD_STATUSES, LEAD_STATUS_META, LEAD_SOURCE_META } from '@/config/constants'
 
-const COLUMNS = [
-  { id: 'new',          label: 'New',          color: '#3b82f6', bg: '#eff6ff' },
-  { id: 'contacted',   label: 'Contacted',    color: '#8b5cf6', bg: '#f5f3ff' },
-  { id: 'test_drive',  label: 'Test Drive',   color: '#f59e0b', bg: '#fffbeb' },
-  { id: 'negotiating', label: 'Negotiating',  color: '#f97316', bg: '#fff7ed' },
-  { id: 'won',         label: 'Won',          color: '#16a34a', bg: '#f0fdf4' },
-  { id: 'lost',        label: 'Lost',         color: '#dc2626', bg: '#fef2f2' },
-]
+// Kanban columns derived from the schema-of-record status list + display meta.
+const COLUMNS = LEAD_STATUSES.map(id => ({ id, ...LEAD_STATUS_META[id] }))
+
+function SourceBadge({ source }: { source: string }) {
+  const meta = LEAD_SOURCE_META[source as keyof typeof LEAD_SOURCE_META] || LEAD_SOURCE_META.other
+  return (
+    <span style={{ display: 'inline-flex', alignItems: 'center', gap: '3px', background: meta.color, color: 'white', fontSize: '9px', fontWeight: '700', padding: '2px 7px', borderRadius: '999px', letterSpacing: '0.3px' }}>
+      {meta.icon} {meta.label}
+    </span>
+  )
+}
 
 export default function LeadsPage() {
   const [leads, setLeads] = useState<any[]>([])
@@ -99,6 +103,7 @@ export default function LeadsPage() {
                   <div style={{ fontWeight: '700', fontSize: '13px', color: '#0f1f3d', marginBottom: '2px' }}>
                     {lead.first_name} {lead.last_name}
                   </div>
+                  <div style={{ marginBottom: '4px' }}><SourceBadge source={lead.source} /></div>
                   {lead.vehicles && (
                     <div style={{ fontSize: '11px', color: '#888', marginBottom: '4px' }}>
                       {lead.vehicles.year} {lead.vehicles.make} {lead.vehicles.model}
@@ -134,7 +139,7 @@ export default function LeadsPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: '#f9f9f9', borderBottom: '2px solid #eee' }}>
-                {['Name', 'Phone', 'Email', 'Vehicle', 'Status', 'Date', 'Actions'].map(h => (
+                {['Name', 'Phone', 'Email', 'Vehicle', 'Source', 'Status', 'Date', 'Actions'].map(h => (
                   <th key={h} style={{ textAlign: 'left', padding: '10px 14px', color: '#999', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase' }}>{h}</th>
                 ))}
               </tr>
@@ -148,6 +153,7 @@ export default function LeadsPage() {
                     <td style={{ padding: '10px 14px', color: '#555' }}>{lead.phone}</td>
                     <td style={{ padding: '10px 14px', color: '#555' }}>{lead.email || '—'}</td>
                     <td style={{ padding: '10px 14px', color: '#555' }}>{lead.vehicles ? lead.vehicles.year + ' ' + lead.vehicles.make + ' ' + lead.vehicles.model : '—'}</td>
+                    <td style={{ padding: '10px 14px' }}><SourceBadge source={lead.source} /></td>
                     <td style={{ padding: '10px 14px' }}>
                       <span style={{ background: col.bg, color: col.color, padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '600' }}>{col.label}</span>
                     </td>
@@ -173,8 +179,11 @@ export default function LeadsPage() {
           onClick={() => setSelected(null)}>
           <div style={{ background: 'white', borderRadius: '12px', padding: '28px', width: '100%', maxWidth: '500px', boxShadow: '0 20px 60px rgba(0,0,0,0.2)' }}
             onClick={e => e.stopPropagation()}>
-            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '20px' }}>
-              <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0f1f3d', margin: 0 }}>{selected.first_name} {selected.last_name}</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '20px' }}>
+              <div>
+                <h2 style={{ fontSize: '18px', fontWeight: '700', color: '#0f1f3d', margin: 0 }}>{selected.first_name} {selected.last_name}</h2>
+                <div style={{ marginTop: '6px' }}><SourceBadge source={selected.source} /></div>
+              </div>
               <button onClick={() => setSelected(null)} style={{ background: 'none', border: 'none', fontSize: '20px', cursor: 'pointer', color: '#999' }}>×</button>
             </div>
 
@@ -182,7 +191,7 @@ export default function LeadsPage() {
               {[
                 ['Phone', selected.phone],
                 ['Email', selected.email || '—'],
-                ['Source', selected.source || '—'],
+                ['Status', LEAD_STATUS_META[selected.status as keyof typeof LEAD_STATUS_META]?.label || selected.status],
                 ['Date', new Date(selected.created_at).toLocaleDateString('en-ZA')],
               ].map(([k, v]) => (
                 <div key={k}>

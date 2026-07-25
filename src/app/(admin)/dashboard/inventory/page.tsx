@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { VEHICLE_STATUS_LABELS } from '@/config/constants'
 
 const STATUS_COLORS: Record<string, string> = {
   available: '#16a34a',
@@ -100,7 +101,7 @@ export default function InventoryPage() {
                   <td style={{ padding: '12px 14px' }}>
                     <button onClick={() => toggleStatus(v.id, v.status)}
                       style={{ background: STATUS_COLORS[v.status] + '20', color: STATUS_COLORS[v.status], border: 'none', padding: '3px 10px', borderRadius: '12px', fontSize: '11px', fontWeight: '600', cursor: 'pointer' }}>
-                      {v.status}
+                      {VEHICLE_STATUS_LABELS[v.status as keyof typeof VEHICLE_STATUS_LABELS] || v.status}
                     </button>
                   </td>
                   <td style={{ padding: '12px 14px' }}>

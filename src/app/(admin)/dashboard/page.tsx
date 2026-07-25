@@ -1,6 +1,7 @@
 'use client'
 import { useEffect, useState } from 'react'
 import { createClient } from '@/lib/supabase/client'
+import { LEAD_STATUS_META } from '@/config/constants'
 
 export default function DashboardPage() {
   const [stats, setStats] = useState({ vehicles: 0, leads: 0, newLeads: 0, sold: 0 })
@@ -70,7 +71,7 @@ export default function DashboardPage() {
                       <td style={{ padding: '10px 12px', color: '#555' }}>{lead.email || '—'}</td>
                       <td style={{ padding: '10px 12px' }}>
                         <span style={{ background: lead.status === 'new' ? '#dcfce7' : '#f0f0f0', color: lead.status === 'new' ? '#16a34a' : '#555', padding: '2px 8px', borderRadius: '12px', fontSize: '11px', fontWeight: '600' }}>
-                          {lead.status}
+                          {LEAD_STATUS_META[lead.status as keyof typeof LEAD_STATUS_META]?.label || lead.status}
                         </span>
                       </td>
                       <td style={{ padding: '10px 12px', color: '#999' }}>{new Date(lead.created_at).toLocaleDateString('en-ZA')}</td>
