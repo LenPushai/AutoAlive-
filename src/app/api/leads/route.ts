@@ -25,10 +25,8 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ error: parsed.error.flatten() }, { status: 400 })
   }
 
-  // Cast at the insert boundary only: the placeholder Database type
-  // (src/types/database.ts) resolves inserts to `never`. Real generated types
-  // remove this cast (US-AA-037). The rest of the file is fully type-checked.
-  const { data, error } = await (supabase.from('leads') as any)
+  const { data, error } = await supabase
+    .from('leads')
     .insert({ ...parsed.data, dealer_id: DEALER_ID })
     .select()
     .single()

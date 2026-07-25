@@ -38,6 +38,9 @@ yarn-error.log*
 # vercel
 .vercel
 
+# supabase CLI scratch (schema.sql is the committed schema-of-record)
+supabase/.temp/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

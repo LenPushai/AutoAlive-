@@ -30,10 +30,8 @@ export async function POST(request: NextRequest) {
   }
 
   // TODO: Get dealer_id from auth session; DEALER_ID is the single-dealer default.
-  // Cast at the insert boundary only: the placeholder Database type
-  // (src/types/database.ts) resolves inserts to `never`. Real generated types
-  // remove this cast (US-AA-037). The rest of the file is fully type-checked.
-  const { data, error } = await (supabase.from('vehicles') as any)
+  const { data, error } = await supabase
+    .from('vehicles')
     .insert({ ...parsed.data, dealer_id: DEALER_ID })
     .select()
     .single()

@@ -21,7 +21,7 @@ export default function NewVehiclePage() {
     if (!form.make || !form.model || !form.price) { alert('Make, Model and Price are required'); return }
     setSaving(true)
     const sb = createClient()
-    const { error } = await (sb.from('vehicles') as any).insert({
+    const { error } = await sb.from('vehicles').insert({
       ...form,
       dealer_id: DEALER_ID,
       price: Number(form.price),

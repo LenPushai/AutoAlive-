@@ -26,7 +26,7 @@ export default function EditVehiclePage() {
     e.preventDefault()
     setSaving(true)
     const sb = createClient()
-    const { error } = await (sb.from('vehicles') as any).update({
+    const { error } = await sb.from('vehicles').update({
       make: form.make, model: form.model, variant: form.variant,
       year: Number(form.year), price: Number(form.price), mileage: Number(form.mileage),
       fuel_type: form.fuel_type, transmission: form.transmission,
