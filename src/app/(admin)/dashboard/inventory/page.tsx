@@ -74,7 +74,7 @@ export default function InventoryPage() {
           <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '13px' }}>
             <thead>
               <tr style={{ background: '#f9f9f9', borderBottom: '2px solid #eee' }}>
-                {['Vehicle', 'Year', 'Price', 'Mileage', 'Status', 'Featured', 'Actions'].map(h => (
+                {['Photo', 'Vehicle', 'Year', 'Price', 'Mileage', 'Status', 'Featured', 'Actions'].map(h => (
                   <th key={h} style={{ textAlign: 'left', padding: '10px 14px', color: '#999', fontWeight: '600', fontSize: '11px', textTransform: 'uppercase' }}>{h}</th>
                 ))}
               </tr>
@@ -82,6 +82,14 @@ export default function InventoryPage() {
             <tbody>
               {filtered.map(v => (
                 <tr key={v.id} style={{ borderBottom: '1px solid #f5f5f5' }}>
+                  <td style={{ padding: '10px 14px' }}>
+                    {v.thumbnail ? (
+                      // eslint-disable-next-line @next/next/no-img-element
+                      <img src={v.thumbnail} alt="" style={{ width: '54px', height: '38px', objectFit: 'cover', borderRadius: '6px', border: '1px solid #eee' }} />
+                    ) : (
+                      <div style={{ width: '54px', height: '38px', borderRadius: '6px', background: '#f4f4f4', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16px', color: '#ccc' }}>🚗</div>
+                    )}
+                  </td>
                   <td style={{ padding: '12px 14px' }}>
                     <div style={{ fontWeight: '600', color: '#0f1f3d' }}>{v.make} {v.model}</div>
                     <div style={{ fontSize: '11px', color: '#999' }}>{v.variant}</div>

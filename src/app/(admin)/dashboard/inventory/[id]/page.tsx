@@ -9,6 +9,7 @@ export default function EditVehiclePage() {
   const params = useParams(); const id = params.id as string
   const [saving, setSaving] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [uploading, setUploading] = useState(false)
   const [form, setForm] = useState<any>(null)
 
   useEffect(() => {
@@ -23,6 +24,20 @@ export default function EditVehiclePage() {
 
   function set(key: string, val: any) { setForm((f: any) => ({ ...f, [key]: val })) }
 
+  async function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch('/api/upload', { method: 'POST', body: fd })
+    const json = await res.json().catch(() => ({}))
+    setUploading(false)
+    if (!res.ok) { alert(json.error || 'Upload failed. Please use a JPG or PNG under 5MB.'); return }
+    set('thumbnail', json.url)
+    set('images', [json.url])
+  }
+
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
     setSaving(true)
@@ -33,6 +48,7 @@ export default function EditVehiclePage() {
       fuel_type: form.fuel_type, transmission: form.transmission,
       colour: form.colour, body_type: form.body_type, engine_size: form.engine_size,
       description: form.description, status: form.status, is_featured: form.is_featured,
+      thumbnail: form.thumbnail ?? null, images: form.images ?? [],
       updated_at: new Date().toISOString(),
     }).eq('id', id)
     if (error) { alert('Error: ' + error.message); setSaving(false); return }
@@ -93,6 +109,22 @@ export default function EditVehiclePage() {
         </div>
 
         <div style={{ background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '16px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: '700', color: '#0f1f3d', marginBottom: '16px' }}>Photo</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {form.thumbnail ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={form.thumbnail} alt="Vehicle" style={{ width: '120px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e0e0e0' }} />
+            ) : (
+              <div style={{ width: '120px', height: '80px', borderRadius: '8px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', color: '#ccc' }}>🚗</div>
+            )}
+            <div>
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhoto} disabled={uploading} style={{ fontSize: '13px' }} />
+              <div style={{ fontSize: '11px', color: '#999', marginTop: '6px' }}>{uploading ? 'Uploading…' : 'JPG or PNG, up to 5MB. Replaces the current photo.'}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '16px' }}>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
             <div><label style={lbl}>Status</label>
               <select style={inp} value={form.status} onChange={e => set('status', e.target.value)}>
@@ -110,8 +142,8 @@ export default function EditVehiclePage() {
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button type="submit" disabled={saving}
-            style={{ background: saving ? '#999' : '#c9a84c', color: 'white', border: 'none', padding: '12px 32px', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer' }}>
+          <button type="submit" disabled={saving || uploading}
+            style={{ background: (saving || uploading) ? '#999' : '#c9a84c', color: 'white', border: 'none', padding: '12px 32px', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: (saving || uploading) ? 'not-allowed' : 'pointer' }}>
             {saving ? 'Saving...' : 'Save Changes'}
           </button>
           <a href="/dashboard/inventory"

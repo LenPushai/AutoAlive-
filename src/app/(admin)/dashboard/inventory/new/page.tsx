@@ -8,6 +8,8 @@ import { VEHICLE_STATUSES } from '@/config/constants'
 export default function NewVehiclePage() {
   const router = useRouter()
   const [saving, setSaving] = useState(false)
+  const [photo, setPhoto] = useState('')
+  const [uploading, setUploading] = useState(false)
   const [form, setForm] = useState({
     make: '', model: '', variant: '', year: new Date().getFullYear(),
     price: '', mileage: '', fuel_type: 'petrol', transmission: 'manual',
@@ -16,6 +18,19 @@ export default function NewVehiclePage() {
   })
 
   function set(key: string, val: any) { setForm(f => ({ ...f, [key]: val })) }
+
+  async function handlePhoto(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+    setUploading(true)
+    const fd = new FormData()
+    fd.append('file', file)
+    const res = await fetch('/api/upload', { method: 'POST', body: fd })
+    const json = await res.json().catch(() => ({}))
+    setUploading(false)
+    if (!res.ok) { alert(json.error || 'Upload failed. Please use a JPG or PNG under 5MB.'); return }
+    setPhoto(json.url)
+  }
 
   async function handleSave(e: React.FormEvent) {
     e.preventDefault()
@@ -28,7 +43,8 @@ export default function NewVehiclePage() {
       price: Number(form.price),
       mileage: Number(form.mileage),
       year: Number(form.year),
-      images: [],
+      images: photo ? [photo] : [],
+      thumbnail: photo || null,
       features: [],
     })
     if (error) { alert('Error: ' + error.message); setSaving(false); return }
@@ -86,6 +102,22 @@ export default function NewVehiclePage() {
         </div>
 
         <div style={{ background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '16px' }}>
+          <h2 style={{ fontSize: '14px', fontWeight: '700', color: '#0f1f3d', marginBottom: '16px' }}>Photo</h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>
+            {photo ? (
+              // eslint-disable-next-line @next/next/no-img-element
+              <img src={photo} alt="Vehicle" style={{ width: '120px', height: '80px', objectFit: 'cover', borderRadius: '8px', border: '1px solid #e0e0e0' }} />
+            ) : (
+              <div style={{ width: '120px', height: '80px', borderRadius: '8px', border: '1px dashed #ccc', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '24px', color: '#ccc' }}>🚗</div>
+            )}
+            <div>
+              <input type="file" accept="image/jpeg,image/png,image/webp" onChange={handlePhoto} disabled={uploading} style={{ fontSize: '13px' }} />
+              <div style={{ fontSize: '11px', color: '#999', marginTop: '6px' }}>{uploading ? 'Uploading…' : 'JPG or PNG, up to 5MB.'}</div>
+            </div>
+          </div>
+        </div>
+
+        <div style={{ background: 'white', borderRadius: '10px', padding: '24px', boxShadow: '0 1px 4px rgba(0,0,0,0.08)', marginBottom: '16px' }}>
           <h2 style={{ fontSize: '14px', fontWeight: '700', color: '#0f1f3d', marginBottom: '16px' }}>Listing Options</h2>
           <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px', marginBottom: '16px' }}>
             <div><label style={lbl}>Status</label>
@@ -104,8 +136,8 @@ export default function NewVehiclePage() {
         </div>
 
         <div style={{ display: 'flex', gap: '12px' }}>
-          <button type="submit" disabled={saving}
-            style={{ background: saving ? '#999' : '#c9a84c', color: 'white', border: 'none', padding: '12px 32px', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: saving ? 'not-allowed' : 'pointer' }}>
+          <button type="submit" disabled={saving || uploading}
+            style={{ background: (saving || uploading) ? '#999' : '#c9a84c', color: 'white', border: 'none', padding: '12px 32px', borderRadius: '8px', fontSize: '14px', fontWeight: '700', cursor: (saving || uploading) ? 'not-allowed' : 'pointer' }}>
             {saving ? 'Saving...' : 'Save Vehicle'}
           </button>
           <a href="/dashboard/inventory"
