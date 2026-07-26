@@ -15,7 +15,7 @@ export default function DashboardPage() {
         sb.from('vehicles').select('id', { count: 'exact', head: true }).eq('status', 'available'),
         sb.from('leads').select('id', { count: 'exact', head: true }),
         sb.from('leads').select('id', { count: 'exact', head: true }).eq('status', 'new'),
-        sb.from('vehicles').select('id', { count: 'exact', head: true }).eq('status', 'sold'),
+        sb.from('sales').select('id', { count: 'exact', head: true }),
         sb.from('leads').select('id, first_name, last_name, phone, email, status, created_at, vehicle_id').order('created_at', { ascending: false }).limit(5),
       ])
       setStats({ vehicles: v.count || 0, leads: l.count || 0, newLeads: nl.count || 0, sold: s.count || 0 })
@@ -29,7 +29,7 @@ export default function DashboardPage() {
     { label: 'Vehicles In Stock', value: stats.vehicles, color: '#0f1f3d', icon: '🚗' },
     { label: 'Total Leads', value: stats.leads, color: '#c9a84c', icon: '👥' },
     { label: 'New Leads', value: stats.newLeads, color: '#22c55e', icon: '🔥' },
-    { label: 'Vehicles Sold', value: stats.sold, color: '#6366f1', icon: '💰' },
+    { label: 'Sales Recorded', value: stats.sold, color: '#6366f1', icon: '💰' },
   ]
 
   return (
