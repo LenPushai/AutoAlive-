@@ -13,42 +13,13 @@ SET client_min_messages = warning;
 SET row_security = off;
 
 
+CREATE SCHEMA IF NOT EXISTS "public";
+
+
+ALTER SCHEMA "public" OWNER TO "pg_database_owner";
+
+
 COMMENT ON SCHEMA "public" IS 'standard public schema';
-
-
-
-CREATE EXTENSION IF NOT EXISTS "pg_graphql" WITH SCHEMA "graphql";
-
-
-
-
-
-
-CREATE EXTENSION IF NOT EXISTS "pg_stat_statements" WITH SCHEMA "extensions";
-
-
-
-
-
-
-CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA "extensions";
-
-
-
-
-
-
-CREATE EXTENSION IF NOT EXISTS "supabase_vault" WITH SCHEMA "vault";
-
-
-
-
-
-
-CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA "extensions";
-
-
-
 
 
 
@@ -414,10 +385,6 @@ ALTER TABLE ONLY "public"."vehicles"
 
 
 
-CREATE POLICY "Allow public lead insert" ON "public"."leads" FOR INSERT TO "anon" WITH CHECK (true);
-
-
-
 CREATE POLICY "Public and anon can read vehicles" ON "public"."vehicles" FOR SELECT USING (true);
 
 
@@ -426,7 +393,9 @@ CREATE POLICY "Public can read vehicles" ON "public"."vehicles" FOR SELECT USING
 
 
 
-CREATE POLICY "Public can submit enquiries" ON "public"."leads" FOR INSERT WITH CHECK (("source" = 'website'::"text"));
+CREATE POLICY "Public can submit enquiries" ON "public"."leads" FOR INSERT TO "anon" WITH CHECK ((("source" = 'website'::"text") AND ("consent_given" = true) AND (("vehicle_id" IS NULL) OR ("vehicle_id" IN ( SELECT "vehicles"."id"
+   FROM "public"."vehicles"
+  WHERE ("vehicles"."status" = ANY (ARRAY['available'::"text", 'reserved'::"text"])))))));
 
 
 
@@ -495,11 +464,6 @@ ALTER TABLE "public"."users" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "public"."vehicles" ENABLE ROW LEVEL SECURITY;
 
 
-
-
-ALTER PUBLICATION "supabase_realtime" OWNER TO "postgres";
-
-
 GRANT USAGE ON SCHEMA "public" TO "postgres";
 GRANT USAGE ON SCHEMA "public" TO "anon";
 GRANT USAGE ON SCHEMA "public" TO "authenticated";
@@ -507,174 +471,9 @@ GRANT USAGE ON SCHEMA "public" TO "service_role";
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 GRANT ALL ON FUNCTION "public"."update_updated_at"() TO "anon";
 GRANT ALL ON FUNCTION "public"."update_updated_at"() TO "authenticated";
 GRANT ALL ON FUNCTION "public"."update_updated_at"() TO "service_role";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -720,12 +519,6 @@ GRANT ALL ON TABLE "public"."vehicles" TO "service_role";
 
 
 
-
-
-
-
-
-
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "postgres";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON SEQUENCES TO "authenticated";
@@ -750,30 +543,6 @@ ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TAB
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "anon";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "authenticated";
 ALTER DEFAULT PRIVILEGES FOR ROLE "postgres" IN SCHEMA "public" GRANT ALL ON TABLES TO "service_role";
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
