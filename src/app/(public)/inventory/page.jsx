@@ -818,6 +818,9 @@ export default function InventoryPage() {
         <p style={{ fontSize: "0.7rem", color: "rgba(255,255,255,0.3)", margin: "0.3rem 0 0" }}>
           17 Vaal Drive, Sylviaville, Vanderbijlpark 1911
         </p>
+        <p style={{ fontSize: "0.7rem", margin: "0.3rem 0 0" }}>
+          <a href="/privacy" style={{ color: "rgba(255,255,255,0.5)" }}>Privacy Notice</a>
+        </p>
       </footer>
 
       {/* ── WHATSAPP FLOAT ── */}

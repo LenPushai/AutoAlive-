@@ -101,6 +101,8 @@ export type Database = {
       leads: {
         Row: {
           assigned_to: string | null
+          consent_given: boolean
+          consent_timestamp: string | null
           created_at: string
           dealer_id: string
           email: string | null
@@ -117,6 +119,8 @@ export type Database = {
         }
         Insert: {
           assigned_to?: string | null
+          consent_given?: boolean
+          consent_timestamp?: string | null
           created_at?: string
           dealer_id: string
           email?: string | null
@@ -133,6 +137,8 @@ export type Database = {
         }
         Update: {
           assigned_to?: string | null
+          consent_given?: boolean
+          consent_timestamp?: string | null
           created_at?: string
           dealer_id?: string
           email?: string | null

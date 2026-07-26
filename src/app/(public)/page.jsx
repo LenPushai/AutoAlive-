@@ -322,7 +322,7 @@ export default function HomePage() {
           </div>
           <div>
             <h4>Quick Links</h4>
-            <ul><li><a href="/inventory">All Vehicles</a></li><li><a href="#">Cars</a></li><li><a href="#">Bakkies</a></li><li><a href="#">Motorcycles</a></li><li><a href="#finance">Finance</a></li></ul>
+            <ul><li><a href="/inventory">All Vehicles</a></li><li><a href="#">Cars</a></li><li><a href="#">Bakkies</a></li><li><a href="#">Motorcycles</a></li><li><a href="#finance">Finance</a></li><li><a href="/privacy">Privacy Notice</a></li></ul>
           </div>
           <div>
             <h4>Company</h4>

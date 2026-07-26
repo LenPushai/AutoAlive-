@@ -158,7 +158,7 @@ export default function AboutPage() {
           </div>
           <div>
             <h4>Quick Links</h4>
-            <ul><li><a href="/#inventory">All Vehicles</a></li><li><a href="/#finance">Finance</a></li><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li></ul>
+            <ul><li><a href="/#inventory">All Vehicles</a></li><li><a href="/#finance">Finance</a></li><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li><li><a href="/privacy">Privacy Notice</a></li></ul>
           </div>
           <div>
             <h4>Visit Us</h4>

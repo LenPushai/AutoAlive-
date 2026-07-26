@@ -34,6 +34,7 @@ export default function VehicleDetailPage() {
   var [sent, setSent] = useState(false);
   var [sending, setSending] = useState(false);
   var [failed, setFailed] = useState(false);
+  var [consent, setConsent] = useState(false);
   var [dep, setDep] = useState(0);
   var [term, setTerm] = useState(72);
 
@@ -113,6 +114,8 @@ export default function VehicleDetailPage() {
       notes: form.msg || null,
       source: "website",
       status: "new",
+      consent_given: true,
+      consent_timestamp: new Date().toISOString(),
     };
 
     // supabase-js resolves with { error } rather than throwing, so the response
@@ -448,7 +451,11 @@ export default function VehicleDetailPage() {
                         and we will help you right away.
                       </div>
                     )}
-                    <button type="submit" className="btn-primary" disabled={sending} style={{ width: "100%" }}>
+                    <label style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.75rem", color: "var(--mid-text)", lineHeight: 1.5, margin: "0 0 0.7rem" }}>
+                      <input type="checkbox" required checked={consent} onChange={function (e) { setConsent(e.target.checked); }} style={{ marginTop: "0.15rem", flexShrink: 0 }} />
+                      <span>I consent to Auto Alive processing my personal details to respond to my enquiry. See our <a href="/privacy" style={{ color: "var(--gold)", fontWeight: 600 }}>Privacy Notice</a>.</span>
+                    </label>
+                    <button type="submit" className="btn-primary" disabled={sending || !consent} style={{ width: "100%", opacity: consent ? 1 : 0.6 }}>
                       {sending ? "Sending..." : failed ? "Try Again" : "Send Enquiry"}
                     </button>
                   </form>
@@ -590,6 +597,7 @@ export default function VehicleDetailPage() {
               <li><a href="/#finance">Finance</a></li>
               <li><a href="/#reviews">Reviews</a></li>
               <li><a href="/#contact">Contact</a></li>
+              <li><a href="/privacy">Privacy Notice</a></li>
             </ul>
           </div>
           <div>

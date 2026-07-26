@@ -251,6 +251,13 @@ export default function LeadsPage() {
               ))}
             </div>
 
+            {/* POPIA consent status */}
+            <div style={{ marginBottom: '16px', fontSize: '12px', fontWeight: '600', color: selected.consent_given ? '#16a34a' : '#d97706' }}>
+              {selected.consent_given
+                ? '✓ Consent recorded' + (selected.consent_timestamp ? ' — ' + new Date(selected.consent_timestamp).toLocaleDateString('en-ZA') : '')
+                : '⚠ Consent not recorded'}
+            </div>
+
             {selected.vehicles && (
               <div style={{ background: '#f9f9f9', borderRadius: '8px', padding: '12px', marginBottom: '16px' }}>
                 <div style={{ fontSize: '10px', fontWeight: '600', color: '#999', textTransform: 'uppercase', marginBottom: '4px' }}>Enquired Vehicle</div>

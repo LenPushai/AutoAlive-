@@ -115,6 +115,8 @@ CREATE TABLE IF NOT EXISTS "public"."leads" (
     "lost_reason" "text",
     "created_at" timestamp with time zone DEFAULT "now"() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT "now"() NOT NULL,
+    "consent_given" boolean DEFAULT false NOT NULL,
+    "consent_timestamp" timestamp with time zone,
     CONSTRAINT "leads_source_check" CHECK (("source" = ANY (ARRAY['website'::"text", 'autotrader'::"text", 'carscoza'::"text", 'facebook'::"text", 'tiktok'::"text", 'instagram'::"text", 'walkin'::"text", 'googleads'::"text", 'other'::"text"]))),
     CONSTRAINT "leads_status_check" CHECK (("status" = ANY (ARRAY['new'::"text", 'contacted'::"text", 'test_drive'::"text", 'negotiating'::"text", 'won'::"text", 'lost'::"text"])))
 );

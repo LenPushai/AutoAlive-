@@ -10,6 +10,7 @@ export default function ContactPage() {
   var [sent, setSent] = useState(false);
   var [sending, setSending] = useState(false);
   var [failed, setFailed] = useState(false);
+  var [consent, setConsent] = useState(false);
 
   function updateForm(key, val) {
     var u = Object.assign({}, form);
@@ -34,6 +35,8 @@ export default function ContactPage() {
       notes: form.msg || "General enquiry from contact page",
       source: "website",
       status: "new",
+      consent_given: true,
+      consent_timestamp: new Date().toISOString(),
     };
 
     // supabase-js resolves with { error } rather than throwing, so the response
@@ -245,11 +248,15 @@ export default function ContactPage() {
                           and we will help you right away.
                         </div>
                       )}
+                      <label style={{ display: "flex", alignItems: "flex-start", gap: "0.5rem", fontSize: "0.78rem", color: "var(--mid-text)", lineHeight: 1.5, margin: "0.4rem 0 0.9rem" }}>
+                        <input type="checkbox" required checked={consent} onChange={function (e) { setConsent(e.target.checked); }} style={{ marginTop: "0.15rem", flexShrink: 0 }} />
+                        <span>I consent to Auto Alive processing my personal details to respond to my enquiry. See our <a href="/privacy" style={{ color: "var(--gold)", fontWeight: 600 }}>Privacy Notice</a>.</span>
+                      </label>
                       <button
                         type="submit"
                         className="btn-primary"
-                        disabled={sending}
-                        style={{ width: "100%", padding: "0.9rem", fontSize: "0.95rem" }}
+                        disabled={sending || !consent}
+                        style={{ width: "100%", padding: "0.9rem", fontSize: "0.95rem", opacity: consent ? 1 : 0.6 }}
                       >
                         {sending ? "Sending..." : failed ? "Try Again \u2192" : "Send Message \u2192"}
                       </button>
@@ -295,7 +302,7 @@ export default function ContactPage() {
           </div>
           <div>
             <h4>Quick Links</h4>
-            <ul><li><a href="/#inventory">All Vehicles</a></li><li><a href="/#finance">Finance</a></li><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li></ul>
+            <ul><li><a href="/#inventory">All Vehicles</a></li><li><a href="/#finance">Finance</a></li><li><a href="/about">About</a></li><li><a href="/contact">Contact</a></li><li><a href="/privacy">Privacy Notice</a></li></ul>
           </div>
           <div>
             <h4>Visit Us</h4>
