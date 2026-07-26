@@ -180,6 +180,9 @@ export default function VehicleDetailPage() {
   var wa = "https://wa.me/27000000000?text=" +
     encodeURIComponent("Hi, I\u2019m interested in the " + title + " (" + formatZAR(v.price) + ") on Auto Alive.");
 
+  var isSold = v.status === "sold";
+  var isReserved = v.status === "reserved";
+
   var specs = [
     { l: "Year", v: String(v.year) },
     { l: "Make", v: v.make },
@@ -246,9 +249,15 @@ export default function VehicleDetailPage() {
                 <div style={S.noPhoto}>No Photos</div>
               )}
 
-              {/* Featured Badge */}
-              {v.is_featured && (
+              {/* Featured / status badge */}
+              {v.is_featured && !isSold && (
                 <div style={S.badge}>Featured</div>
+              )}
+              {isSold && (
+                <div style={Object.assign({}, S.badge, { background: "#dc2626" })}>Sold</div>
+              )}
+              {isReserved && (
+                <div style={Object.assign({}, S.badge, { background: "#d97706" })}>Reserved</div>
               )}
 
               {/* Prev Arrow */}
@@ -355,6 +364,24 @@ export default function VehicleDetailPage() {
               </div>
             </div>
 
+            {/* Sold state — replaces enquiry CTAs / form / finance */}
+            {isSold && (
+              <div style={{ background: "#fef2f2", border: "1px solid #fecaca", borderRadius: 12, padding: "1.5rem", marginBottom: "1rem", textAlign: "center" }}>
+                <div style={{ fontSize: "1.6rem", marginBottom: "0.4rem" }}>{"🔴"}</div>
+                <h3 style={{ color: "#991b1b", margin: 0, fontSize: "1.15rem", fontFamily: "var(--font-display)" }}>This vehicle has been sold</h3>
+                <p style={{ color: "#7f1d1d", fontSize: "0.85rem", margin: "0.4rem 0 1.1rem" }}>Thank you for your interest — this one has found its new owner.</p>
+                <Link href="/inventory" className="btn-primary" style={{ display: "inline-block", padding: "0.75rem 1.5rem" }}>Browse Available Stock</Link>
+              </div>
+            )}
+
+            {/* Reserved notice — enquiries still welcome */}
+            {isReserved && (
+              <div style={{ background: "#fffbeb", border: "1px solid #fde68a", borderRadius: 10, padding: "0.8rem 1rem", marginBottom: "1rem", fontSize: "0.85rem", color: "#92400e" }}>
+                <strong>Reserved.</strong> This vehicle is currently reserved — enquire below to register your interest in case it becomes available.
+              </div>
+            )}
+
+            {!isSold && (<>
             {/* CTA Buttons */}
             <div style={S.ctaStack}>
               <button
@@ -468,6 +495,7 @@ export default function VehicleDetailPage() {
                 <div style={S.finNote}>*Prime + 2%. Subject to credit approval.</div>
               </div>
             </div>
+            </>)}
 
             {/* Specifications Table */}
             <div style={S.specsWrap}>
