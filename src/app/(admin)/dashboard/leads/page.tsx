@@ -21,18 +21,28 @@ export default function LeadsPage() {
   const [selected, setSelected] = useState<any | null>(null)
   const [view, setView] = useState<'kanban' | 'table'>('kanban')
   const [updating, setUpdating] = useState<string | null>(null)
+  const [soldVehicleIds, setSoldVehicleIds] = useState<Set<string>>(new Set())
+  const [recordingSale, setRecordingSale] = useState(false)
+  const [salePrice, setSalePrice] = useState('')
+  const [saleDate, setSaleDate] = useState('')
+  const [saleSubmitting, setSaleSubmitting] = useState(false)
 
   async function load() {
     const sb = createClient()
     const { data } = await sb
       .from('leads')
-      .select('*, vehicles(make, model, year, price)')
+      .select('*, vehicles(make, model, year, price, status)')
       .order('created_at', { ascending: false })
     setLeads(data || [])
+    // Vehicle ids that already have a sale — used to guard against double-recording.
+    const { data: salesRows } = await sb.from('sales').select('vehicle_id')
+    setSoldVehicleIds(new Set((salesRows || []).map((s: { vehicle_id: string }) => s.vehicle_id)))
     setLoading(false)
   }
 
   useEffect(() => { load() }, [])
+  // Reset the sale form whenever the open lead changes (or the modal closes).
+  useEffect(() => { setRecordingSale(false) }, [selected?.id])
 
   async function moveLead(leadId: string, newStatus: string) {
     setUpdating(leadId)
@@ -49,6 +59,46 @@ export default function LeadsPage() {
     const sb = createClient()
     const { error } = await sb.from('leads').delete().eq('id', leadId)
     if (error) { alert('Could not delete lead: ' + error.message); return }
+    setSelected(null)
+    await load()
+  }
+
+  function openRecordSale() {
+    setSalePrice(selected?.vehicles?.price != null ? String(selected.vehicles.price) : '')
+    setSaleDate(new Date().toISOString().slice(0, 10))
+    setRecordingSale(true)
+  }
+
+  // Record a sale for the selected lead's enquired vehicle: write the sales row
+  // (dealer-scoped; RLS passes for the owner's users row), then mark the vehicle
+  // sold and the lead won. Steps are sequential, not a single transaction — the
+  // sales row is the source of truth; status updates are idempotent/re-runnable.
+  async function recordSale() {
+    if (!selected?.vehicle_id) return
+    const price = Number(salePrice)
+    if (!price || price <= 0) { alert('Enter a valid sale price.'); return }
+    setSaleSubmitting(true)
+    const sb = createClient()
+    const { data: { user } } = await sb.auth.getUser()
+
+    const { error: saleErr } = await sb.from('sales').insert({
+      dealer_id: selected.dealer_id,
+      vehicle_id: selected.vehicle_id,
+      lead_id: selected.id,
+      sale_price: price,
+      sale_date: saleDate || undefined,
+      salesperson_id: user?.id ?? null,
+    })
+    if (saleErr) { alert('Could not record sale: ' + saleErr.message); setSaleSubmitting(false); return }
+
+    const { error: vErr } = await sb.from('vehicles').update({ status: 'sold' }).eq('id', selected.vehicle_id)
+    if (vErr) alert('Sale recorded, but could not mark the vehicle sold: ' + vErr.message)
+
+    const { error: lErr } = await sb.from('leads').update({ status: 'won', updated_at: new Date().toISOString() }).eq('id', selected.id)
+    if (lErr) alert('Sale recorded, but could not update the lead: ' + lErr.message)
+
+    setSaleSubmitting(false)
+    setRecordingSale(false)
     setSelected(null)
     await load()
   }
@@ -207,6 +257,46 @@ export default function LeadsPage() {
                 <div style={{ fontSize: '14px', fontWeight: '700', color: '#0f1f3d' }}>{selected.vehicles.year} {selected.vehicles.make} {selected.vehicles.model}</div>
                 <div style={{ fontSize: '13px', color: '#c9a84c', fontWeight: '600' }}>R {Number(selected.vehicles.price).toLocaleString('en-ZA')}</div>
               </div>
+            )}
+
+            {/* Record Sale — needs an enquired vehicle (sales.vehicle_id + lead_id are NOT NULL) */}
+            {selected.vehicle_id && selected.vehicles && (
+              (selected.vehicles.status === 'sold' || soldVehicleIds.has(selected.vehicle_id)) ? (
+                <div style={{ background: '#f0fdf4', border: '1px solid #16a34a40', borderRadius: '8px', padding: '10px 12px', marginBottom: '16px', fontSize: '12px', fontWeight: '600', color: '#16a34a' }}>
+                  ✓ Sale recorded — vehicle marked sold
+                </div>
+              ) : recordingSale ? (
+                <div style={{ background: '#fffdf5', border: '1px solid #c9a84c60', borderRadius: '8px', padding: '14px', marginBottom: '16px' }}>
+                  <div style={{ fontSize: '11px', fontWeight: '700', color: '#0f1f3d', textTransform: 'uppercase', marginBottom: '10px' }}>Record Sale</div>
+                  <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '10px', marginBottom: '12px' }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '10px', fontWeight: '600', color: '#999', marginBottom: '3px', textTransform: 'uppercase' }}>Sale Price (R)</label>
+                      <input type="number" value={salePrice} onChange={e => setSalePrice(e.target.value)}
+                        style={{ width: '100%', border: '1px solid #e0e0e0', borderRadius: '6px', padding: '7px 10px', fontSize: '13px', boxSizing: 'border-box', outline: 'none' }} />
+                    </div>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '10px', fontWeight: '600', color: '#999', marginBottom: '3px', textTransform: 'uppercase' }}>Sale Date</label>
+                      <input type="date" value={saleDate} onChange={e => setSaleDate(e.target.value)}
+                        style={{ width: '100%', border: '1px solid #e0e0e0', borderRadius: '6px', padding: '7px 10px', fontSize: '13px', boxSizing: 'border-box', outline: 'none' }} />
+                    </div>
+                  </div>
+                  <div style={{ display: 'flex', gap: '8px' }}>
+                    <button onClick={recordSale} disabled={saleSubmitting}
+                      style={{ flex: 1, background: saleSubmitting ? '#999' : '#16a34a', color: 'white', border: 'none', padding: '9px', borderRadius: '6px', fontSize: '13px', fontWeight: '700', cursor: saleSubmitting ? 'not-allowed' : 'pointer' }}>
+                      {saleSubmitting ? 'Recording…' : 'Confirm Sale'}
+                    </button>
+                    <button onClick={() => setRecordingSale(false)} disabled={saleSubmitting}
+                      style={{ background: '#f0f0f0', color: '#555', border: 'none', padding: '9px 16px', borderRadius: '6px', fontSize: '13px', fontWeight: '600', cursor: 'pointer' }}>
+                      Cancel
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <button onClick={openRecordSale}
+                  style={{ width: '100%', background: '#16a34a', color: 'white', border: 'none', padding: '10px', borderRadius: '8px', fontSize: '13px', fontWeight: '700', cursor: 'pointer', marginBottom: '16px' }}>
+                  💰 Record Sale
+                </button>
+              )
             )}
 
             {selected.notes && (
